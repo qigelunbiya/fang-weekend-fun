@@ -1,5 +1,5 @@
 body {
-    background-color: #f1d5da; /* 浅粉色 */
+    background-color: #f1d5da; /* 浅粉色，不变 */
     text-align: center;
     font-family: Arial, sans-serif;
     margin: 0;
@@ -11,30 +11,37 @@ body {
 }
 
 .container {
-    width: 90%; /* 适应手机屏幕宽度 */
-    max-width: 500px; /* 最大宽度限制 */
+    width: 90%;
+    max-width: 500px;
 }
 
 #mainImage {
-    width: 100%; /* 图片宽度自适应容器 */
-    max-width: 200px; /* 最大宽度限制 */
+    width: 100%;
+    max-width: 200px;
     transition: all 0.3s ease;
 }
 
 h1 {
-    font-size: 5vw; /* 字体大小根据视口宽度变化 */
+    font-size: 5vw;
     color: #68495b;
-    margin: 20px 0; /* 增加上下间距 */
+    margin: 20px 0;
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 button {
-    font-size: 4vw; /* 字体大小根据视口宽度变化 */
+    font-size: 4vw;
     padding: 10px 20px;
     border: none;
-    border-radius: 5px;
+    border-radius: 999px;
     cursor: pointer;
     margin: 10px;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 #yes {
@@ -48,26 +55,120 @@ button {
     position: relative;
 }
 
-.yes-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: #ffdae0; /* 粉色 */
+/* 第二页：约会信息表单 */
+.date-container {
+    width: 90%;
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.date-container h1 {
+    font-size: 6vw;
+    margin-bottom: 16px;
+}
+
+.date-tip {
+    font-size: 4vw;
+    color: #7a5b6a;
+    margin-bottom: 12px;
+}
+
+.date-options {
     display: flex;
     flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+    align-items: stretch;
+}
+
+.date-option {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 3.8vw;
+    color: #5b4450;
+    display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    gap: 6px;
 }
 
-.yes-text {
-    font-size: 7vw; /* 字体大小根据视口宽度变化 */
+.date-option input {
+    transform: scale(1.1);
 }
 
-.yes-image {
-    width: 50%; /* 图片宽度自适应容器 */
-    max-width: 300px; /* 最大宽度限制 */
+.form-group {
+    margin-top: 10px;
+    margin-bottom: 16px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 4vw;
+    color: #5b4450;
+}
+
+.form-input {
+    width: 100%;
+    max-width: 320px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid #d8a4af;
+    font-size: 4vw;
+    outline: none;
+}
+
+.form-input:focus {
+    box-shadow: 0 0 0 2px rgba(212, 129, 142, 0.4);
+}
+
+.form-hint {
+    font-size: 3.2vw;
+    color: #7a5b6a;
+    margin-top: 6px;
+}
+
+.submit-btn {
+    background-color: #d4818e;
+    color: #fff;
+    font-size: 4.2vw;
+    padding: 10px 30px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    margin-top: 6px;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+}
+
+.form-hint-bottom {
+    font-size: 3.2vw;
+    color: #7a5b6a;
+    margin-top: 10px;
+}
+
+/* 淡入淡出动画 */
+.fade-out {
+    animation: fadeOut 0.4s forwards;
+}
+
+.fade-in {
+    animation: fadeIn 0.4s forwards;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
 /* 电脑端样式优化 */
@@ -86,23 +187,41 @@ button {
     }
 
     #mainImage {
-        width: 200px; /* 固定图片宽度 */
+        width: 200px;
     }
 
     h1 {
-        font-size: 28px; /* 固定字体大小 */
+        font-size: 28px;
         margin: 20px 0;
     }
 
     button {
-        font-size: 18px; /* 固定字体大小 */
+        font-size: 18px;
     }
 
-    .yes-text {
-        font-size: 36px; /* 固定字体大小 */
+    .date-container h1 {
+        font-size: 32px;
     }
 
-    .yes-image {
-        width: 300px; /* 固定图片宽度 */
+    .date-tip,
+    .form-label {
+        font-size: 18px;
+    }
+
+    .date-option {
+        font-size: 16px;
+    }
+
+    .form-input {
+        font-size: 16px;
+    }
+
+    .form-hint,
+    .form-hint-bottom {
+        font-size: 14px;
+    }
+
+    .submit-btn {
+        font-size: 18px;
     }
 }
