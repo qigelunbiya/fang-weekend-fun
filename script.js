@@ -1,9 +1,44 @@
+// ========= 基本 DOM =========
+const appRoot = document.getElementById("appRoot");
 let yesButton = document.getElementById("yes");
 let noButton = document.getElementById("no");
 let questionText = document.getElementById("question");
 let mainImage = document.getElementById("mainImage");
 
-// 可选：从 URL 里拿 name 拼在问题后面，例如 index.html?name=小美
+// ========= BGM & 静音 =========
+const bgm = document.getElementById("bgm");
+const muteToggle = document.getElementById("muteToggle");
+let isMuted = false;
+
+function initBgm() {
+  if (!bgm) return;
+  bgm.volume = 0.6;
+
+  // 先尝试自动播放；如果被拦截，就在第一次点击时再播
+  const tryPlay = () => {
+    bgm.play().catch(() => {});
+  };
+  bgm.play().catch(() => {
+    const handler = () => {
+      tryPlay();
+      window.removeEventListener("click", handler);
+      window.removeEventListener("touchstart", handler);
+    };
+    window.addEventListener("click", handler, { once: true });
+    window.addEventListener("touchstart", handler, { once: true });
+  });
+
+  muteToggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    isMuted = !isMuted;
+    bgm.muted = isMuted;
+    muteToggle.textContent = isMuted ? "🔈" : "🔊";
+  });
+}
+
+initBgm();
+
+// ========= 名字拼在问题后面 =========
 const params = new URLSearchParams(window.location.search);
 let username = params.get("name");
 
@@ -11,14 +46,17 @@ let username = params.get("name");
 const maxLength = 20;
 const safeUsername = username ? username.substring(0, maxLength) : "";
 
-// 防止 `null` 变成 `"null"`
-if (username) {
+// 防止 null 变成字符串 "null"
+if (username && questionText) {
   questionText.innerText = questionText.innerText + safeUsername;
 }
 
-let clickCount = 0; // 记录点击「不去」的次数
+// ========= 「不去」相关逻辑 =========
+let clickCount = 0;        // 记录点击「不去」的次数
+let escapeMode = false;    // 「不去」按钮是否进入逃跑模式
+let finalNoClicks = 0;     // 在“拒绝无效！只能同意😘”状态下被点次数
+const ESCAPE_AFTER_TIMES = 5;
 
-// 「哼，不去😤」按钮的文字变化（带 emoji）
 const noTexts = [
   "你认真的吗…😭",
   "要不再想想😱",
@@ -30,10 +68,12 @@ const noTexts = [
   "拒绝无效！只能同意😘",
 ];
 
+const FINAL_NO_TEXT = "拒绝无效！只能同意😘";
+
 // ======= 关键：这里填 ngrok 暴露出来的 HTTPS 地址 =======
 const API_BASE = "https://supervoluminously-penicillate-malia.ngrok-free.dev";
 
-// ======= 嘘寒问暖的弹窗内容（可以继续自己加） =======
+// ======= 嘘寒问暖的弹窗内容 =======
 const careMessages = [
   "今天有好好吃饭吗？",
   "最近有没有好好休息～",
@@ -64,11 +104,18 @@ const careMessages = [
   "遇到小情绪也没关系，我在呢",
   "今天也要温柔对待自己呀",
   "如果世界对你偏见，我就站在你这边",
-  "你的心情对我来说很重要💖"
+  "你的心情对我来说很重要💖",
 ];
 
-// 点击「哼，不去😤」
-noButton.addEventListener("click", function () {
+// ========= 「不去」按钮点击 =========
+noButton.addEventListener("click", function (e) {
+  // 已进入逃跑模式，禁止正常点击逻辑，只让它跑路
+  if (escapeMode) {
+    e.preventDefault();
+    moveNoButton();
+    return;
+  }
+
   clickCount++;
 
   // 让「我同意」按钮越来越大
@@ -96,48 +143,163 @@ noButton.addEventListener("click", function () {
   if (clickCount === 2) mainImage.src = "images/think.png";   // 思考
   if (clickCount === 3) mainImage.src = "images/angry.png";   // 生气
   if (clickCount >= 4) mainImage.src = "images/crying.png";   // 一直哭
-});
 
-// ================== 点击「我同意😊」后的新版流程 ==================
-
-yesButton.addEventListener("click", function () {
-  // 防止连点
-  yesButton.disabled = true;
-  noButton.disabled = true;
-
-  const container = document.querySelector(".container");
-  if (container) {
-    // 先让原页面淡出
-    container.classList.add("container-fade-out");
-
-    setTimeout(() => {
-      container.remove();      // 把原来的内容干掉
-      showCarePopups();        // 再开始出现弹窗
-    }, 450); // 对应 CSS 动画时间
-  } else {
-    showCarePopups();
+  // 如果已经是“拒绝无效！只能同意😘”，开始计数
+  if (noButton.innerText === FINAL_NO_TEXT) {
+    finalNoClicks++;
+    if (finalNoClicks >= ESCAPE_AFTER_TIMES) {
+      enableEscapeMode();
+    }
   }
 });
 
-// 1）先弹一堆嘘寒问暖的小弹窗
-function showCarePopups() {
+// 开启逃跑模式（围绕「我同意」的小范围乱跑）
+function enableEscapeMode() {
+  if (escapeMode) return;
+  escapeMode = true;
+
+  noButton.style.position = "fixed";
+  noButton.style.zIndex = "1000";
+  noButton.classList.add("no-escape-mode");
+
+  // 清掉原来的 translateX，只保留轻微放大
+  noButton.style.transform = "scale(1.05)";
+
+  // 鼠标靠近 / 手指点就跑路
+  noButton.addEventListener("mouseenter", moveNoButton);
+  noButton.addEventListener("touchstart", function (e) {
+    e.preventDefault();
+    moveNoButton();
+  });
+}
+
+// 围绕「我同意」按钮附近，画一个小圆圈随机位置
+function moveNoButton() {
+  const yesRect = yesButton.getBoundingClientRect();
+  const noRect = noButton.getBoundingClientRect();
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  const margin = 8;
+
+  const yesCenterX = (yesRect.left + yesRect.right) / 2;
+  const yesCenterY = (yesRect.top + yesRect.bottom) / 2;
+
+  const baseRadius = Math.max(yesRect.width, yesRect.height) * 2.2;
+
+  let top, left;
+  let tries = 0;
+
+  while (tries < 40) {
+    const angle = Math.random() * Math.PI * 2;
+    const radius = baseRadius * (0.8 + Math.random() * 0.6); // 半径有一点随机
+
+    const centerX = yesCenterX + radius * Math.cos(angle);
+    const centerY = yesCenterY + radius * Math.sin(angle);
+
+    left = centerX - noRect.width / 2;
+    top = centerY - noRect.height / 2;
+
+    const proposed = {
+      left,
+      top,
+      right: left + noRect.width,
+      bottom: top + noRect.height,
+    };
+
+    // 保证在视口内
+    if (
+      proposed.left < margin ||
+      proposed.top < margin ||
+      proposed.right > vw - margin ||
+      proposed.bottom > vh - margin
+    ) {
+      tries++;
+      continue;
+    }
+
+    // 不和「我同意」重叠
+    const overlapWithYes = !(
+      proposed.right < yesRect.left - margin ||
+      proposed.left > yesRect.right + margin ||
+      proposed.bottom < yesRect.top - margin ||
+      proposed.top > yesRect.bottom + margin
+    );
+
+    if (!overlapWithYes) break;
+    tries++;
+  }
+
+  if (isNaN(top) || isNaN(left)) {
+    top = yesRect.bottom + 20;
+    left = yesRect.right + 20;
+  }
+
+  noButton.style.top = `${top}px`;
+  noButton.style.left = `${left}px`;
+}
+
+// ================== 点击「我同意😊」后的三幕 ==================
+let agreeStarted = false;
+
+yesButton.addEventListener("click", function () {
+  if (agreeStarted) return;
+  agreeStarted = true;
+
+  const container = document.querySelector(".container");
+  if (container) {
+    container.classList.add("container-fade-out");
+    setTimeout(() => {
+      // 第一幕
+      showFirstScreen();
+    }, 450);
+  } else {
+    showFirstScreen();
+  }
+});
+
+// 第一幕：中央大字 + 小号提示
+function showFirstScreen() {
+  appRoot.innerHTML = `
+    <div class="first-screen">
+      <div class="first-message">耶！你同意跟我出去啦💕</div>
+      <div class="click-hint first-hint">点击画面继续……</div>
+    </div>
+  `;
   document.body.style.overflow = "hidden";
 
-  const overlay = document.createElement("div");
-  overlay.className = "popup-overlay";
-  document.body.appendChild(overlay);
+  const firstScreen = document.querySelector(".first-screen");
+  firstScreen.addEventListener("click", function () {
+    showCarePopups();
+  });
+}
 
-  const POPUP_COUNT = 80;      // 超级加倍：想再夸张可以调大
-  const POPUP_INTERVAL = 40;   // 每个弹出间隔（毫秒）
+// 第二幕：超多可爱弹窗雨 + 小号提示
+function showCarePopups() {
+  appRoot.innerHTML = `
+    <div class="popup-stage">
+      <div class="popup-overlay"></div>
+      <div class="click-hint second-hint hidden">点击画面继续……</div>
+    </div>
+  `;
+  document.body.style.overflow = "hidden";
+
+  const overlay = document.querySelector(".popup-overlay");
+  const hint = document.querySelector(".second-hint");
+  const stage = document.querySelector(".popup-stage");
+
+  // ====== 你可以自己调这两个参数 ======
+  const POPUP_COUNT = 140;  // 弹窗越多越密
+  const POPUP_INTERVAL = 35; // 每个弹出间隔（毫秒），越小越快
 
   const pastelColors = [
-    "#ffe4e1", // 浅粉
-    "#fff5c4", // 浅黄
-    "#e0f7fa", // 浅青
-    "#f3e5f5", /* 浅紫 */
-    "#e8f5e9", // 浅绿
-    "#ffdce5", // 粉红
-    "#fef3e7"  // 奶油橙
+    "#ffe4e1",
+    "#fff5c4",
+    "#e0f7fa",
+    "#f3e5f5",
+    "#e8f5e9",
+    "#ffdce5",
+    "#fef3e7",
   ];
 
   for (let i = 0; i < POPUP_COUNT; i++) {
@@ -147,89 +309,94 @@ function showCarePopups() {
     box.className = "popup-box";
     box.textContent = msg;
 
-    // 随机位置（尽量铺满页面）
-    const top = 5 + Math.random() * 80;   // 5% - 85% 之间
-    const left = 3 + Math.random() * 80;  // 3% - 83% 之间
+    // 随机位置，尽量铺满屏幕
+    const top = 2 + Math.random() * 86;   // 2%-88%
+    const left = 2 + Math.random() * 86;  // 2%-88%
     box.style.top = top + "vh";
     box.style.left = left + "vw";
 
-    // 随机柔和背景色
     const color = pastelColors[Math.floor(Math.random() * pastelColors.length)];
     box.style.backgroundColor = color;
 
-    // 微小随机旋转角度，可爱一点
-    const rotate = (Math.random() * 10 - 5).toFixed(1); // -5° ~ 5°
+    const rotate = (Math.random() * 10 - 5).toFixed(1);
     box.style.transform = `scale(0.6) translateY(20px) rotate(${rotate}deg)`;
 
-    // 逐个出现的延迟
-    const delay = i * POPUP_INTERVAL + Math.random() * 120;
+    const delay = i * POPUP_INTERVAL + Math.random() * 100;
     box.style.animationDelay = `${delay}ms`;
 
     overlay.appendChild(box);
   }
 
-  // 大概等所有弹窗都出现后，再统一淡出 + 进入填写时间页面
-  const appearDuration = POPUP_COUNT * POPUP_INTERVAL + 2500; // 粗略总时间
+  let canContinue = false;
+  const appearDuration = POPUP_COUNT * POPUP_INTERVAL + 2500;
 
   setTimeout(() => {
-    overlay.classList.add("popup-overlay-hide");
-
-    // 等淡出动画结束后移除 overlay，并进入选时间页面
-    setTimeout(() => {
-      overlay.remove();
-      showDateForm();
-    }, 650); // 对应 CSS 里 overlayFadeOut 的时间
+    hint.classList.remove("hidden");
+    canContinue = true;
   }, appearDuration);
+
+  stage.addEventListener("click", function () {
+    if (!canContinue) return;
+    showDateForm();
+  });
 }
 
-// 2）弹窗结束后，进入填写时间页面
+// 第三幕：填写时间（增加可爱快捷选项）
+// 第三幕：仅自由选择时间（更可爱 UI）
 function showDateForm() {
-  // 替换成约会时间选择页面（自由选择时间段）
-  document.body.innerHTML = `
-    <div class="date-container">
-      <h1>耶！你同意跟我出去啦💕</h1>
+  appRoot.innerHTML = `
+    <div class="date-page">
       <p class="date-tip">
-        第一次见面就定在 <strong>这个周六</strong> 吧，由你来选一个时间段～
+        第一次见面就定在 <strong>这个周六</strong> 吧
+      </p>
+      <p class="date-subtip">
+        下面两个时间都可以自由选，选一个你方便的时间段
       </p>
 
-      <div class="form-group">
-        <label for="startTime" class="form-label">开始时间：</label>
-        <input type="time" id="startTime" class="form-input">
+      <div class="time-input-row">
+        <div class="time-card">
+          <div class="time-label">开始时间</div>
+          <div class="time-input-wrap">
+            <input type="time" id="startTime" class="time-input">
+            <span class="time-icon">⏰</span>
+          </div>
+        </div>
+
+        <div class="time-card">
+          <div class="time-label">结束时间</div>
+          <div class="time-input-wrap">
+            <input type="time" id="endTime" class="time-input">
+            <span class="time-icon">🌙</span>
+          </div>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="endTime" class="form-label">结束时间：</label>
-        <input type="time" id="endTime" class="form-input">
-      </div>
-
-      <button id="submitDate" class="submit-btn">提交</button>
-      <p class="form-hint-bottom">你的选择会悄悄保存到我的小本本里，只有我能看到～</p>
+      <button id="submitDate" class="submit-btn">锁定这个时间</button>
+      <p class="form-hint-bottom">已经把时间记小本本，绝无泄密风险</p>
     </div>
   `;
 
-  document.body.classList.add("fade-in");
   document.body.style.overflow = "hidden";
+  document.body.classList.add("fade-in");
 
   const submitBtn = document.getElementById("submitDate");
+  const startTimeInput = document.getElementById("startTime");
+  const endTimeInput = document.getElementById("endTime");
 
   submitBtn.addEventListener("click", function () {
-    const startTimeInput = document.getElementById("startTime");
-    const endTimeInput = document.getElementById("endTime");
-
     const startTime = startTimeInput.value;
     const endTime = endTimeInput.value;
 
     if (!startTime || !endTime) {
-      alert("要先选好开始和结束时间哦～");
+      alert("先选好开始和结束时间嘛～");
       return;
     }
 
     if (endTime <= startTime) {
-      alert("结束时间要晚于开始时间嘛，再检查一下～");
+      alert("结束时间要晚于开始时间哦，再看一眼～");
       return;
     }
 
-    // 要发给后端的数据
     const payload = {
       name: safeUsername || null,
       day: "这个周六",
@@ -251,8 +418,7 @@ function showDateForm() {
         return res.json();
       })
       .then(() => {
-        // 成功后再切换成一个“记录成功”页面
-        document.body.innerHTML = `
+        appRoot.innerHTML = `
           <div class="yes-screen">
             <h1 class="yes-text">我记下啦！周六见～ ✨</h1>
             <img src="images/hug.png" alt="拥抱" class="yes-image">
@@ -265,3 +431,4 @@ function showDateForm() {
       });
   });
 }
+

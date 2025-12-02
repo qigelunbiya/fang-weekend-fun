@@ -1,7 +1,7 @@
 body {
-    background-color: #f1d5da; /* 浅粉色，不变 */
+    background-color: #f1d5da; /* 浅粉色 */
     text-align: center;
-    font-family: Arial, sans-serif;
+    font-family: "Baloo 2", "Nunito", "YouYuan", "PingFang SC", "Microsoft YaHei", sans-serif;
     margin: 0;
     padding: 0;
     display: flex;
@@ -10,9 +10,32 @@ body {
     height: 100vh;
 }
 
+#appRoot {
+    width: 100%;
+    height: 100%;
+}
+
+/* 右上角静音按钮 */
+.mute-btn {
+    position: fixed;
+    top: 10px;
+    right: 12px;
+    border: none;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    z-index: 1001;
+    backdrop-filter: blur(6px);
+}
+
+/* 第一页：问要不要出去 */
 .container {
     width: 90%;
     max-width: 500px;
+    margin: 0 auto;
 }
 
 #mainImage {
@@ -45,50 +68,87 @@ button {
 }
 
 #yes {
-    background-color: #d4818e; /* 粉色 */
+    background-color: #d4818e;
     color: white;
 }
 
 #no {
-    background-color: #6784b1; /* 蓝色 */
+    background-color: #6784b1;
     color: white;
     position: relative;
 }
 
-/* 第二页：约会信息表单 */
-.date-container {
-    width: 90%;
-    max-width: 500px;
-    margin: 0 auto;
-    text-align: center;
-}
-
-.date-container h1 {
-    font-size: 6vw;
-    margin-bottom: 16px;
-}
-
+/* 第二页/第三页公共文案样式 */
 .date-tip {
     font-size: 4vw;
     color: #7a5b6a;
     margin-bottom: 12px;
 }
 
+/* 第三页整体容器 */
+.date-page {
+    width: 92%;
+    max-width: 520px;
+    margin: 0 auto;
+    text-align: center;
+    padding-top: 40px;
+}
+
+/* 快捷时间小胶囊 */
+.quick-time-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 16px 0 10px;
+}
+
+.quick-time {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(212, 129, 142, 0.5);
+    font-size: 3.6vw;
+    color: #5b4450;
+    cursor: pointer;
+    box-shadow: 0 3px 7px rgba(0,0,0,0.12);
+}
+
+.quick-time.active {
+    background: #d4818e;
+    color: #fff;
+    border-color: #d4818e;
+}
+
+.date-subtip {
+    font-size: 3.2vw;
+    color: #7a5b6a;
+    margin: 8px 0 18px;
+}
+
+/* 时间输入行并排 / 换行 */
+.time-input-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* 表单通用 */
 .form-group {
-    margin-top: 10px;
     margin-bottom: 16px;
 }
 
 .form-label {
     display: block;
-    margin-bottom: 6px;
-    font-size: 4vw;
+    margin-bottom: 4px;
+    font-size: 3.4vw;
     color: #5b4450;
 }
 
 .form-input {
     width: 100%;
-    max-width: 320px;
+    max-width: 160px;
     padding: 8px 12px;
     border-radius: 999px;
     border: 1px solid #d8a4af;
@@ -100,12 +160,7 @@ button {
     box-shadow: 0 0 0 2px rgba(212, 129, 142, 0.4);
 }
 
-.form-hint {
-    font-size: 3.2vw;
-    color: #7a5b6a;
-    margin-top: 6px;
-}
-
+/* 提交按钮 */
 .submit-btn {
     background-color: #d4818e;
     color: #fff;
@@ -172,6 +227,122 @@ button {
     to   { opacity: 1; }
 }
 
+/* 首页容器淡出动画 */
+.container-fade-out {
+    animation: containerFadeOut 0.45s ease forwards;
+}
+
+@keyframes containerFadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+
+/* 「不去」逃跑模式时的平滑移动 */
+.no-escape-mode {
+    transition: top 0.2s ease, left 0.2s ease, transform 0.2s ease;
+}
+
+/* 第一幕：同意后的全屏提示 */
+.first-screen {
+    position: fixed;
+    inset: 0;
+    background-color: #ffdae0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.first-message {
+    font-size: 5.2vw;
+    color: #68495b;
+    margin: 0 10%;
+    animation: firstPopIn 0.6s ease-out;
+}
+
+@keyframes firstPopIn {
+    from {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 底部点击提示（小字，没有框） */
+.click-hint {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 24px;
+    font-size: 3vw;
+    color: #7a5b6a;
+    opacity: 0.8;
+}
+
+.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 第二幕：弹窗雨阶段的容器 */
+.popup-stage {
+    position: fixed;
+    inset: 0;
+    background-color: #f1d5da;
+    overflow: hidden;
+}
+
+/* 弹窗雨 */
+.popup-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+    animation: overlayFadeIn 0.4s ease forwards;
+}
+
+.popup-box {
+    position: absolute;
+    max-width: 190px;
+    padding: 8px 12px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    font-size: 3vw;
+    color: #5b4450;
+    line-height: 1.4;
+    opacity: 0;
+    transform: scale(0.6) translateY(20px);
+    animation: popupIn 0.5s ease forwards;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+}
+
+@keyframes popupIn {
+    from {
+        opacity: 0;
+        transform: scale(0.4) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes overlayFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
 /* 电脑端样式优化 */
 @media (min-width: 768px) {
     body {
@@ -188,7 +359,7 @@ button {
     }
 
     #mainImage {
-        width: 200px;
+        width: 220px;
     }
 
     h1 {
@@ -200,10 +371,6 @@ button {
         font-size: 18px;
     }
 
-    .date-container h1 {
-        font-size: 32px;
-    }
-
     .date-tip,
     .form-label {
         font-size: 18px;
@@ -211,9 +378,14 @@ button {
 
     .form-input {
         font-size: 16px;
+        max-width: 190px;
     }
 
-    .form-hint,
+    .quick-time {
+        font-size: 15px;
+    }
+
+    .date-subtip,
     .form-hint-bottom {
         font-size: 14px;
     }
@@ -222,93 +394,17 @@ button {
         font-size: 18px;
     }
 
-    .yes-text {
-        font-size: 36px;
+    .yes-text,
+    .first-message {
+        font-size: 30px;
     }
 
-    .yes-image {
-        width: 300px;
+    .click-hint {
+        font-size: 13px;
     }
-}
 
-/* ================== 嘘寒问暖弹窗动画 ================== */
-
-.popup-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 999;
-    pointer-events: none; /* 不挡住点击，不过这一步里你也没需要点别的 */
-    overflow: hidden;
-    animation: overlayFadeIn 0.4s ease forwards;
-}
-
-.popup-box {
-    position: absolute;
-    max-width: 220px;
-    padding: 8px 12px;
-    background-color: rgba(255, 255, 255, 0.96);
-    border-radius: 16px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    font-size: 3.4vw;
-    color: #5b4450;
-    line-height: 1.4;
-    opacity: 0;
-    transform: scale(0.6) translateY(20px);
-    animation: popupIn 0.5s ease forwards;
-}
-
-.popup-overlay-hide {
-    animation: overlayFadeOut 0.5s ease forwards;
-}
-
-@keyframes popupIn {
-    from {
-        opacity: 0;
-        transform: scale(0.4) translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-@keyframes overlayFadeIn {
-    from {
-        background-color: rgba(0, 0, 0, 0);
-    }
-    to {
-        background-color: rgba(0, 0, 0, 0.06);
-    }
-}
-
-@keyframes overlayFadeOut {
-    from {
-        opacity: 1;
-    }
-    to {
-        opacity: 0;
-    }
-}
-
-/* 电脑端适当调小一点文字 */
-@media (min-width: 768px) {
     .popup-box {
-        font-size: 16px;
-        max-width: 260px;
-    }
-}
-/* 首页容器淡出动画 */
-.container-fade-out {
-    animation: containerFadeOut 0.45s ease forwards;
-}
-
-@keyframes containerFadeOut {
-    from {
-        opacity: 1;
-        transform: scale(1);
-    }
-    to {
-        opacity: 0;
-        transform: scale(0.9);
+        font-size: 14px;
+        max-width: 220px;
     }
 }

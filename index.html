@@ -7,12 +7,21 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <img id="mainImage" src="images/manbo_happy.gif" alt="开心的曼波">
-        <h1 id="question">周末要和我出去吗？</h1>
-        <div class="buttons">
-            <button id="yes">我同意😊</button>
-            <button id="no">哼，不去😤</button>
+    <!-- 背景音乐 -->
+    <audio id="bgm" src="music/3961165938.mp3" loop></audio>
+
+    <!-- 右上角静音按钮 -->
+    <button id="muteToggle" class="mute-btn" aria-label="切换静音">🔊</button>
+
+    <!-- 这里是整个应用的内容，会被 JS 切换三幕 -->
+    <div id="appRoot">
+        <div class="container">
+            <img id="mainImage" src="images/manbo_happy.gif" alt="开心的曼波">
+            <h1 id="question">周末要和我出去吗？</h1>
+            <div class="buttons">
+                <button id="yes">我同意😊</button>
+                <button id="no">哼，不去😤</button>
+            </div>
         </div>
     </div>
 
