@@ -78,177 +78,8 @@ button {
     position: relative;
 }
 
-/* 第二页/第三页公共文案样式 */
-.date-tip {
-    font-size: 4vw;
-    color: #7a5b6a;
-    margin-bottom: 12px;
-}
+/* ================= 第一幕：同意后的全屏提示 ================= */
 
-/* 第三页整体容器 */
-.date-page {
-    width: 92%;
-    max-width: 520px;
-    margin: 0 auto;
-    text-align: center;
-    padding-top: 40px;
-}
-
-/* 快捷时间小胶囊 */
-.quick-time-row {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin: 16px 0 10px;
-}
-
-.quick-time {
-    display: inline-block;
-    padding: 8px 14px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(212, 129, 142, 0.5);
-    font-size: 3.6vw;
-    color: #5b4450;
-    cursor: pointer;
-    box-shadow: 0 3px 7px rgba(0,0,0,0.12);
-}
-
-.quick-time.active {
-    background: #d4818e;
-    color: #fff;
-    border-color: #d4818e;
-}
-
-.date-subtip {
-    font-size: 3.2vw;
-    color: #7a5b6a;
-    margin: 8px 0 18px;
-}
-
-/* 时间输入行并排 / 换行 */
-.time-input-row {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-/* 表单通用 */
-.form-group {
-    margin-bottom: 16px;
-}
-
-.form-label {
-    display: block;
-    margin-bottom: 4px;
-    font-size: 3.4vw;
-    color: #5b4450;
-}
-
-.form-input {
-    width: 100%;
-    max-width: 160px;
-    padding: 8px 12px;
-    border-radius: 999px;
-    border: 1px solid #d8a4af;
-    font-size: 4vw;
-    outline: none;
-}
-
-.form-input:focus {
-    box-shadow: 0 0 0 2px rgba(212, 129, 142, 0.4);
-}
-
-/* 提交按钮 */
-.submit-btn {
-    background-color: #d4818e;
-    color: #fff;
-    font-size: 4.2vw;
-    padding: 10px 30px;
-    border-radius: 999px;
-    border: none;
-    cursor: pointer;
-    margin-top: 6px;
-}
-
-.submit-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 10px rgba(0,0,0,0.15);
-}
-
-.form-hint-bottom {
-    font-size: 3.2vw;
-    color: #7a5b6a;
-    margin-top: 10px;
-}
-
-/* 提交成功后的大字+拥抱图 */
-.yes-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: #ffdae0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.yes-text {
-    font-size: 7vw;
-    color: #68495b;
-    margin-bottom: 16px;
-}
-
-.yes-image {
-    width: 50%;
-    max-width: 300px;
-}
-
-/* 淡入淡出动画 */
-.fade-out {
-    animation: fadeOut 0.4s forwards;
-}
-
-.fade-in {
-    animation: fadeIn 0.4s forwards;
-}
-
-@keyframes fadeOut {
-    from { opacity: 1; }
-    to   { opacity: 0; }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-/* 首页容器淡出动画 */
-.container-fade-out {
-    animation: containerFadeOut 0.45s ease forwards;
-}
-
-@keyframes containerFadeOut {
-    from {
-        opacity: 1;
-        transform: scale(1);
-    }
-    to {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-}
-
-/* 「不去」逃跑模式时的平滑移动 */
-.no-escape-mode {
-    transition: top 0.2s ease, left 0.2s ease, transform 0.2s ease;
-}
-
-/* 第一幕：同意后的全屏提示 */
 .first-screen {
     position: fixed;
     inset: 0;
@@ -294,7 +125,8 @@ button {
     pointer-events: none;
 }
 
-/* 第二幕：弹窗雨阶段的容器 */
+/* ================= 第二幕：弹窗雨 ================= */
+
 .popup-stage {
     position: fixed;
     inset: 0;
@@ -302,7 +134,6 @@ button {
     overflow: hidden;
 }
 
-/* 弹窗雨 */
 .popup-overlay {
     position: fixed;
     inset: 0;
@@ -343,7 +174,238 @@ button {
     to   { opacity: 1; }
 }
 
-/* 电脑端样式优化 */
+/* ================= 第三幕：选时间（只自由选择） ================= */
+
+.date-page {
+    width: 92%;
+    max-width: 520px;
+    margin: 0 auto;
+    text-align: center;
+    padding-top: 40px;
+}
+
+.date-tip {
+    font-size: 4vw;
+    color: #7a5b6a;
+    margin-bottom: 6px;
+}
+
+.date-subtip {
+    font-size: 3.2vw;
+    color: #7a5b6a;
+    margin-bottom: 18px;
+}
+
+/* 两个时间卡片 */
+.time-input-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.time-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 18px;
+    padding: 10px 14px 14px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    min-width: 150px;
+}
+
+.time-label {
+    font-size: 3.2vw;
+    color: #5b4450;
+}
+
+/* 外面看到的“点击选择时间”胶囊 */
+.time-display {
+    margin-top: 8px;
+    border: none;
+    background: #ffffff;
+    border-radius: 999px;
+    padding: 8px 16px;
+    min-width: 130px;
+    font-size: 4vw;
+    color: #5b4450;
+    cursor: pointer;
+    box-shadow: 0 3px 7px rgba(0,0,0,0.12);
+}
+
+.time-display.has-value {
+    background: #d4818e;
+    color: #fff;
+}
+
+/* 提交按钮和底部提示 */
+.submit-btn {
+    background-color: #d4818e;
+    color: #fff;
+    font-size: 4.2vw;
+    padding: 10px 30px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    margin-top: 6px;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+}
+
+.form-hint-bottom {
+    font-size: 3.2vw;
+    color: #7a5b6a;
+    margin-top: 10px;
+}
+
+/* 自定义时间选择弹窗 */
+.time-picker-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.time-picker-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.time-picker {
+    background: #ffeef2;
+    border-radius: 20px;
+    padding: 16px 18px;
+    width: 260px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+}
+
+.tp-title {
+    font-size: 16px;
+    color: #5b4450;
+    margin-bottom: 10px;
+}
+
+.tp-columns {
+    display: flex;
+    gap: 10px;
+    max-height: 180px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+}
+
+.tp-col {
+    flex: 1;
+}
+
+.tp-item {
+    padding: 4px 6px;
+    border-radius: 999px;
+    margin: 2px 0;
+    font-size: 14px;
+    cursor: pointer;
+    color: #5b4450;
+}
+
+.tp-item.selected {
+    background: #d4818e;
+    color: #fff;
+}
+
+.tp-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.tp-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.tp-cancel {
+    background: #ffffff;
+    color: #666;
+}
+
+.tp-ok {
+    background: #d4818e;
+    color: #fff;
+}
+
+/* ================= 提交成功后的大字+拥抱图 ================= */
+
+.yes-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #ffdae0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.yes-text {
+    font-size: 7vw;
+    color: #68495b;
+    margin-bottom: 16px;
+}
+
+.yes-image {
+    width: 50%;
+    max-width: 300px;
+}
+
+/* =============== 通用淡入淡出动画 =============== */
+
+.fade-out {
+    animation: fadeOut 0.4s forwards;
+}
+
+.fade-in {
+    animation: fadeIn 0.4s forwards;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* 首页容器淡出动画 */
+.container-fade-out {
+    animation: containerFadeOut 0.45s ease forwards;
+}
+
+@keyframes containerFadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+
+/* =============== 电脑端样式优化 =============== */
 @media (min-width: 768px) {
     body {
         display: block;
@@ -371,23 +433,21 @@ button {
         font-size: 18px;
     }
 
-    .date-tip,
-    .form-label {
-        font-size: 18px;
-    }
-
-    .form-input {
-        font-size: 16px;
-        max-width: 190px;
-    }
-
-    .quick-time {
-        font-size: 15px;
+    .date-tip {
+        font-size: 20px;
     }
 
     .date-subtip,
     .form-hint-bottom {
         font-size: 14px;
+    }
+
+    .time-label {
+        font-size: 14px;
+    }
+
+    .time-display {
+        font-size: 16px;
     }
 
     .submit-btn {
