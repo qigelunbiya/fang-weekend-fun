@@ -1,1 +1,8 @@
-图片为原创绘制，版权所有，禁止商用。
+# 依赖（如果没装）
+pip install fastapi uvicorn mysql-connector-python
+
+# 启动后端
+uvicorn app:app --reload --host 0.0.0.0 --port 8000
+
+# 网址
+https://qigelunbiya.github.io/fang-weekend-fun/
