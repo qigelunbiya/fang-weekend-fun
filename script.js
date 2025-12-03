@@ -195,8 +195,13 @@ function startLoveSession() {
 }
 
 // 更新 love 记录（某些字段 + 当前阶段）
+// ⭐ 现在会返回一个 Promise，方便判断是否保存成功
 function saveLove(extra = {}) {
-  if (!loveId) return; // 还没拿到 id 就先不存
+  if (!loveId) {
+    console.warn("saveLove: missing loveId, maybe server not running?");
+    // 没有 loveId 基本就是服务器没开，直接返回失败结果
+    return Promise.resolve({ ok: false, reason: "NO_ID" });
+  }
 
   const payload = {
     id: loveId,
@@ -214,19 +219,32 @@ function saveLove(extra = {}) {
     ...extra,
   };
 
-  fetch(`${API_BASE}/api/love/update`, {
+  return fetch(`${API_BASE}/api/love/update`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
-  }).catch((err) => {
-    console.error("saveLove error", err);
-  });
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error("saveLove response not ok: " + res.status);
+      }
+      // 后端就算不返回内容也没关系
+      return res
+        .json()
+        .catch(() => ({}))
+        .then((data) => ({ ok: true, data }));
+    })
+    .catch((err) => {
+      console.error("saveLove error", err);
+      return { ok: false, error: err };
+    });
 }
 
 // 切换阶段时统一调用
 function gotoStage(newStage) {
   updateAppState({ stage: newStage });
   window.scrollTo(0, 0);
+  // 这里不关心结果，只是顺手存一下
   saveLove({ stage: newStage });
   renderStage();
 }
@@ -622,7 +640,7 @@ function showQuestionnaire() {
   };
   nextBtn.addEventListener("click", goNext);
 
-  // ⭐ 关键修改：允许从问卷页返回到弹幕雨页
+  // ⭐ 问卷页允许返回到弹窗雨
   attachNavHandlers({
     onPrev: () => gotoStage(STAGE.POPUPS),
     onNext: goNext,
@@ -639,8 +657,8 @@ function showIntroPage() {
         <!-- 开场两段自我介绍文字 -->
         <div class="intro-text">
           <p>
-            我现在在中国电子中山的一家子单位做系统开发（地址：中山市档案馆）<br>
-            咳咳，我其实是一个比较沉闷的程序员，但是内心世界却很丰富🤗
+            我现在在中国电子的一家子单位做系统开发（地址：中山市档案馆）<br>
+            咳咳，我虽然是一个比较沉闷的程序员，但是内心世界却很丰富🤗
             日常属于安静但聊天会慢慢打开的类型。
           </p>
           <p>
@@ -668,7 +686,6 @@ function showIntroPage() {
             然后下面是今年五月份毕业答辩时录下来的，人生非常重要的时刻，意味着要顺利毕业啦～（实际内容是被评委拷打😇）
           </p>
           <div class="intro-video-wrap">
-            <!-- 这里把 src 换成你自己的 mp4 路径 -->
             <video
               class="intro-video"
               src="images/dabian_1.mp4"
@@ -700,7 +717,7 @@ function showIntroPage() {
         <div class="intro-text intro-text-bottom">
           <p>
             其实我很少特地拍自己😂……<br>
-            然后是第一次经历这种形式，很重视但是不擅长处理这种事😔<br>
+            然后是第一次经历这种形式，很重视但是又不擅长处理这种事😔<br>
             不需要刻意拉近关系，只是希望气氛能够轻松一点、真诚一点，互相认识☺️
           </p>
         </div>
@@ -732,6 +749,48 @@ function showIntroPage() {
   });
 }
 
+/**
+ * ========= 可爱提示弹窗：服务器没开 =========
+ */
+function showServerOffDialog() {
+  // 已经有一个在了就不重复创建
+  if (document.querySelector(".server-off-mask")) return;
+
+  const mask = document.createElement("div");
+  mask.className = "server-off-mask";
+
+  mask.innerHTML = `
+    <div class="server-off-dialog">
+      <div class="server-off-icon">😴</div>
+      <div class="server-off-title">呀，服务器在睡觉……</div>
+      <div class="server-off-text">
+        现在好像不在服务器开启的时间噢～<br>
+        快联系 <span class="server-off-name">方泽铭</span> 去把服务器打开吧！
+      </div>
+      <button class="server-off-btn" id="serverOffOk">好，我这就去喊他</button>
+    </div>
+  `;
+
+  const close = () => {
+    mask.classList.add("fade-out");
+    setTimeout(() => {
+      if (mask.parentNode) {
+        mask.parentNode.removeChild(mask);
+      }
+    }, 260);
+  };
+
+  mask.addEventListener("click", (e) => {
+    if (e.target === mask) {
+      close();
+    }
+  });
+
+  const okBtn = mask.querySelector("#serverOffOk");
+  okBtn.addEventListener("click", close);
+
+  document.body.appendChild(mask);
+}
 
 // ========= 第五幕：自定义弹窗时间选择器（兼容手机 + 状态保存） =========
 function showDateForm() {
@@ -919,6 +978,7 @@ function showDateForm() {
     btn.classList.add("has-value");
   }
 
+  // ⭐ 这里改成：只有后端保存成功才进入朋友卡，否则弹可爱提示
   const handleSubmit = () => {
     const startTime = startHidden.value;
     const endTime = endHidden.value;
@@ -938,13 +998,19 @@ function showDateForm() {
       end_time: endTime,
     });
 
+    // 真正去保存时间，如果失败就提示“服务器没开”
     saveLove({
       start_time: startTime,
       end_time: endTime,
+    }).then((result) => {
+      if (!result || !result.ok) {
+        // 数据没写进去，弹出可爱弹窗
+        showServerOffDialog();
+        return;
+      }
+      // 保存成功，再进入朋友卡页面
+      gotoStage(STAGE.FRIEND);
     });
-
-    // 直接进入朋友卡页面（不再经过抽卡）
-    gotoStage(STAGE.FRIEND);
   };
 
   submitBtn.addEventListener("click", handleSubmit);
