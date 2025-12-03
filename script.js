@@ -79,7 +79,7 @@ const PRIZE_KEYS = [
 ];
 const PRIZE_IMAGES = PRIZE_KEYS.map(k => `images/${k}.jpg`);
 // 刮卡封面
-const CARD_COVER_IMAGE = "images/card_cover_dummy.jpg"; // TODO: 换成你真正的“请刮卡”图片
+const CARD_COVER_IMAGE = "images/card_cover_dummy.jpg";
 
 // ======= 关键：这里填 ngrok 暴露出来的 HTTPS 地址 =======
 const API_BASE = "https://supervoluminously-penicillate-malia.ngrok-free.dev";
