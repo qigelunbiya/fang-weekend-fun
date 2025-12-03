@@ -130,7 +130,7 @@ const noTexts = [
   "你认真的吗…😭",
   "要不再想想😱",
   "不许选这个！😫",
-  "我伤心了🥹",
+  "我伤心了😭",
   "你这样我会难过哦😔",
   "再给我一次机会嘛🥺",
   "点左边那个好不好😀",
@@ -432,7 +432,7 @@ function showQuestionnaire() {
 
       <h2 class="quiz-title">
         这些小问题没有标准答案，<br>
-        只是想在见你之前，慢慢靠近你的节奏～
+        只是想在见面前，再多了解你一点😂
       </h2>
 
       <!-- Q1：氛围 -->
@@ -488,7 +488,7 @@ function showQuestionnaire() {
 
       <!-- Q4：心情温度计 -->
       <section class="quiz-card" data-q="mood">
-        <div class="quiz-q">Q4 那你现在的大概心情？</div>
+        <div class="quiz-q">Q4 那你现在的大概心情？（浏览器上好像要点击😂）</div>
         <div class="mood-thermo">
           <div class="mood-slider-wrap">
             <div class="mood-slider-bg"></div>
@@ -622,8 +622,9 @@ function showQuestionnaire() {
   };
   nextBtn.addEventListener("click", goNext);
 
+  // ⭐ 关键修改：允许从问卷页返回到弹幕雨页
   attachNavHandlers({
-    onPrev: null,
+    onPrev: () => gotoStage(STAGE.POPUPS),
     onNext: goNext,
   });
 }
@@ -638,8 +639,9 @@ function showIntroPage() {
         <!-- 开场两段自我介绍文字 -->
         <div class="intro-text">
           <p>
-            咳咳，我其实是一个比较沉闷的程序员，但是内心世界很丰富🤗
-            属于安静但聊天会慢慢打开的类型。
+            我现在在中国电子中山的一家子单位做系统开发（地址：中山市档案馆）<br>
+            咳咳，我其实是一个比较沉闷的程序员，但是内心世界却很丰富🤗
+            日常属于安静但聊天会慢慢打开的类型。
           </p>
           <p>
             偶尔会在城市里随便走走，看到好看的天空🌅、路边的小动物😸，或者有趣的事情🌇，
@@ -649,7 +651,7 @@ function showIntroPage() {
 
         <!-- 研究生生活，两张图，水平居中 -->
         <section class="intro-section">
-          <div class="intro-section-title">下面是我丰富的生活</div>
+          <div class="intro-section-title">下面是我以前的生活</div>
           <p class="intro-section-desc">
             研一时经常忙到晚上十点就和同门去校门口吃东西唠嗑
           </p>
@@ -663,7 +665,7 @@ function showIntroPage() {
         <!-- 毕业答辩视频 -->
         <section class="intro-section">
           <p class="intro-section-desc">
-            然后下面是今年五月份毕业答辩时录下来的，人生非常重要的时刻，意味着要顺利毕业啦～
+            然后下面是今年五月份毕业答辩时录下来的，人生非常重要的时刻，意味着要顺利毕业啦～（实际内容是被评委拷打😇）
           </p>
           <div class="intro-video-wrap">
             <!-- 这里把 src 换成你自己的 mp4 路径 -->
@@ -682,7 +684,7 @@ function showIntroPage() {
         <!-- 谢师宴两张图，水平居中 -->
         <section class="intro-section">
           <p class="intro-section-desc">
-            然后下面是五月底谢师宴人生第一次喝的烂醉被记录了下来（从此之后再也没有碰过酒……）
+            然后下面是五月底谢师宴人生第一次喝的烂醉被记录了下来（从此之后再也不会碰酒了……）
           </p>
           <div class="intro-media-row">
             <div class="intro-photo-slot intro-photo-large">
@@ -697,14 +699,14 @@ function showIntroPage() {
         <!-- 收尾一段话 -->
         <div class="intro-text intro-text-bottom">
           <p>
-            其实我很少特地拍自己😂……
-            然后对这种形式的第一次见面我会重视，但是第一次经历我又不知道处理这种事😔
+            其实我很少特地拍自己😂……<br>
+            然后是第一次经历这种形式，很重视但是不擅长处理这种事😔<br>
             不需要刻意拉近关系，只是希望气氛能够轻松一点、真诚一点，互相认识☺️
           </p>
         </div>
 
         <button class="quiz-next-btn intro-next-btn" id="introNextBtn">
-          好啦～那我们约个时间吧 →
+           好啦～那我们约个时间吧 →
         </button>
 
         <button class="nav-arrow nav-arrow-left" type="button"></button>
